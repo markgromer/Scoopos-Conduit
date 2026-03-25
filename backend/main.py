@@ -74,8 +74,8 @@ async def root():
 
 @app.get("/data-deletion", response_class=HTMLResponse)
 async def data_deletion():
-        support_email = settings.support_email
-        html = f"""<!doctype html>
+    support_email = settings.support_email
+    html = f"""<!doctype html>
 <html lang=\"en\">
     <head>
         <meta charset=\"utf-8\" />
@@ -118,13 +118,13 @@ async def data_deletion():
         </div>
     </body>
 </html>"""
-        return HTMLResponse(content=html)
+    return HTMLResponse(content=html)
 
 
 @app.get("/privacy-policy", response_class=HTMLResponse)
 async def privacy_policy():
-        support_email = settings.support_email
-        html = f"""<!doctype html>
+    support_email = settings.support_email
+    html = f"""<!doctype html>
 <html lang=\"en\">
     <head>
         <meta charset=\"utf-8\" />
@@ -187,13 +187,13 @@ async def privacy_policy():
         </div>
     </body>
 </html>"""
-        return HTMLResponse(content=html)
+    return HTMLResponse(content=html)
 
 
 @app.get("/terms-of-service", response_class=HTMLResponse)
 async def terms_of_service():
-        support_email = settings.support_email
-        html = f"""<!doctype html>
+    support_email = settings.support_email
+    html = f"""<!doctype html>
 <html lang=\"en\">
     <head>
         <meta charset=\"utf-8\" />
@@ -236,7 +236,7 @@ async def terms_of_service():
         </div>
     </body>
 </html>"""
-        return HTMLResponse(content=html)
+    return HTMLResponse(content=html)
 
 
 # ── Serve React frontend (production builds copied by render-build.sh) ──
@@ -247,9 +247,23 @@ if STATIC_DIR.is_dir():
     @app.get("/{full_path:path}")
     async def serve_spa(request: Request, full_path: str):
         """Catch-all: serve index.html for client-side routing."""
-        # Don't intercept /api or /health
-        if full_path.startswith("api/") or full_path == "health":
+        # Don't intercept /api or backend-owned public endpoints.
+        # Note: this function matches everything, so it must explicitly
+        # allow server-rendered legal/compliance pages to work.
+        normalized = full_path.rstrip("/")
+        if (
+            normalized.startswith("api/")
+            or normalized in {"health", "openapi.json", "docs", "redoc"}
+        ):
             return
+
+        if normalized == "data-deletion":
+            return await data_deletion()
+        if normalized == "privacy-policy":
+            return await privacy_policy()
+        if normalized == "terms-of-service":
+            return await terms_of_service()
+
         file_path = STATIC_DIR / full_path
         if file_path.is_file():
             return FileResponse(file_path)
