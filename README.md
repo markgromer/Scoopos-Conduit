@@ -151,6 +151,24 @@ POST JSON to `https://yourdomain.com/api/webhooks/lead-form/{agent_id}`
 }
 ```
 
+## Deploy on Render (Blueprint)
+
+This repo includes a Render Blueprint file at the repo root: `render.yaml`.
+
+1. In Render, click **New** -> **Blueprint** and connect the GitHub repo.
+2. Render should detect `render.yaml` and show you the resources it will create:
+   - `conduit-api` (web service)
+   - `conduit-worker` (background worker)
+   - `conduit-redis` (Render Key Value)
+   - `conduit-db` (Render Postgres)
+3. During the setup wizard, enter values for any environment variables marked `sync: false` (OpenAI, Twilio, Meta, SendGrid, GHL).
+4. Deploy.
+
+Notes:
+- The Blueprint uses a supported Postgres plan (currently `basic-256mb`).
+- The backend normalizes Render's `DATABASE_URL` into an async SQLAlchemy URL at runtime.
+- The React dashboard is built during deploy and served by the same FastAPI service.
+
 ## How It Works
 
 1. A message arrives via any channel webhook
