@@ -62,6 +62,15 @@ async def health():
     return {"status": "ok", "service": "conduit"}
 
 
+@app.get("/")
+async def root():
+    """Serve the SPA if present, otherwise confirm the backend is running."""
+    index_html = STATIC_DIR / "index.html"
+    if index_html.is_file():
+        return FileResponse(index_html)
+    return {"status": "ok", "service": "conduit", "message": "Backend is running (frontend not built)."}
+
+
 # ── Serve React frontend (production builds copied by render-build.sh) ──
 if STATIC_DIR.is_dir():
     # Serve static assets (JS, CSS, images)
