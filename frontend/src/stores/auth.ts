@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { api } from "../api/client";
 
-interface AuthState {
+export interface AuthState {
   user: any | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;

@@ -38,6 +38,12 @@ class Settings(BaseSettings):
     meta_verify_token: str = "conduit-verify-token"
     meta_page_access_token: str = ""
 
+    # OAuth login (ScoopOS-Conduit user authentication)
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    facebook_client_id: str = ""
+    facebook_client_secret: str = ""
+
     # SendGrid
     sendgrid_api_key: str = ""
     sendgrid_from_email: str = "noreply@yourdomain.com"

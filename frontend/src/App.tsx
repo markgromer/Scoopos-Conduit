@@ -1,8 +1,10 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useAuth } from "./stores/auth";
+import type { AuthState } from "./stores/auth";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
+import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import AgentConfig from "./pages/AgentConfig";
 import Leads from "./pages/Leads";
@@ -22,7 +24,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const loadUser = useAuth((s) => s.loadUser);
+  const loadUser = useAuth((s: AuthState) => s.loadUser);
 
   useEffect(() => {
     loadUser();
@@ -31,6 +33,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route
         path="/*"
         element={

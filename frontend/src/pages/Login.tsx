@@ -9,8 +9,28 @@ export default function Login() {
   const [companyName, setCompanyName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<"google" | "facebook" | "">("");
   const { login, register } = useAuth();
   const navigate = useNavigate();
+
+  const startOAuth = async (provider: "google" | "facebook") => {
+    setError("");
+    setOauthLoading(provider);
+    try {
+      const resp = await fetch(`/api/auth/oauth/${provider}/start?return_url=1`);
+      if (!resp.ok) {
+        const body = await resp.json().catch(() => ({}));
+        throw new Error(body.detail || `OAuth unavailable (${resp.status})`);
+      }
+      const body = (await resp.json()) as { url?: string };
+      if (!body.url) throw new Error("OAuth start failed");
+      window.location.href = body.url;
+    } catch (err: any) {
+      setError(err.message || "OAuth start failed");
+    } finally {
+      setOauthLoading("");
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -42,6 +62,34 @@ export default function Login() {
           <h2 className="text-lg font-semibold mb-6">
             {isRegister ? "Create Account" : "Sign In"}
           </h2>
+
+          <div className="space-y-3 mb-6">
+            <button
+              type="button"
+              onClick={() => {
+                startOAuth("google");
+              }}
+              disabled={loading || oauthLoading !== ""}
+              className="w-full py-2.5 bg-white text-gray-900 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+            >
+              {oauthLoading === "google" ? "..." : "Continue with Google"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                startOAuth("facebook");
+              }}
+              disabled={loading || oauthLoading !== ""}
+              className="w-full py-2.5 bg-white text-gray-900 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+            >
+              {oauthLoading === "facebook" ? "..." : "Continue with Facebook"}
+            </button>
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-gray-200" />
+              <div className="text-xs text-gray-500">or</div>
+              <div className="h-px flex-1 bg-gray-200" />
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {isRegister && (

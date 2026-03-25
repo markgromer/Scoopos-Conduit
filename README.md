@@ -85,6 +85,11 @@ cp .env.example .env
 # Fill in your API keys
 ```
 
+Optional: enable OAuth login for platform users by setting:
+
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+- `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET`
+
 ### 3. Start with Docker
 
 ```bash
@@ -196,6 +201,10 @@ alembic upgrade head
 |--------|------|-------------|
 | POST | /api/auth/register | Create account |
 | POST | /api/auth/login | Get JWT token |
+| GET | /api/auth/oauth/google/start | Start Google OAuth |
+| GET | /api/auth/oauth/google/callback | Google OAuth callback |
+| GET | /api/auth/oauth/facebook/start | Start Facebook OAuth |
+| GET | /api/auth/oauth/facebook/callback | Facebook OAuth callback |
 | GET | /api/auth/me | Current user |
 | GET/POST | /api/agents/ | List / create agents |
 | GET/PATCH/DELETE | /api/agents/:id | Get / update / delete agent |
