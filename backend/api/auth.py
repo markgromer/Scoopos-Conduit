@@ -15,8 +15,8 @@ from backend.models.user import User
 from backend.schemas.user import UserCreate, UserLogin, UserOut, Token
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
-# Use Argon2 to avoid bcrypt's 72-byte limit and platform-specific bcrypt build issues.
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+# Use PBKDF2-SHA256 (pure Python) to avoid native build issues on deploy.
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 logger = logging.getLogger(__name__)
