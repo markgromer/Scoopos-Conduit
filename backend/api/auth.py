@@ -1,7 +1,9 @@
 import uuid
 from datetime import datetime, timedelta, timezone
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from jose import jwt, JWTError
 from passlib.context import CryptContext
@@ -15,6 +17,8 @@ from backend.schemas.user import UserCreate, UserLogin, UserOut, Token
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+
+logger = logging.getLogger(__name__)
 
 
 def _hash_password(password: str) -> str:
@@ -70,7 +74,17 @@ async def register(body: UserCreate, db: AsyncSession = Depends(get_db)):
         company_name=body.company_name,
     )
     db.add(user)
-    await db.flush()
+    try:
+        # Commit here so any DB errors surface predictably as an HTTP response
+        # (instead of failing during dependency cleanup).
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=409, detail="Email already registered")
+    except Exception:
+        await db.rollback()
+        logger.exception("Register failed")
+        raise HTTPException(status_code=500, detail="Registration failed")
     return Token(access_token=_create_token(user.id))
 
 
