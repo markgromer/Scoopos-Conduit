@@ -2,12 +2,13 @@
 Conduit API - main FastAPI application entry point.
 """
 import logging
+from datetime import datetime
 from pathlib import Path
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 
 from backend.config import settings
 from backend.database import engine, Base
@@ -69,6 +70,55 @@ async def root():
     if index_html.is_file():
         return FileResponse(index_html)
     return {"status": "ok", "service": "conduit", "message": "Backend is running (frontend not built)."}
+
+
+@app.get("/data-deletion", response_class=HTMLResponse)
+async def data_deletion():
+        support_email = settings.support_email
+        html = f"""<!doctype html>
+<html lang=\"en\">
+    <head>
+        <meta charset=\"utf-8\" />
+        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+        <title>Data Deletion Instructions</title>
+        <style>
+            body {{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; margin: 0; padding: 24px; color: #111; }}
+            .wrap {{ max-width: 820px; margin: 0 auto; }}
+            h1 {{ margin: 0 0 8px; font-size: 24px; }}
+            p {{ margin: 12px 0; }}
+            ol {{ margin: 12px 0 12px 20px; }}
+            code {{ background: #f3f4f6; padding: 2px 6px; border-radius: 6px; }}
+            .muted {{ color: #444; font-size: 14px; }}
+        </style>
+    </head>
+    <body>
+        <div class=\"wrap\">
+            <h1>Data Deletion Instructions</h1>
+            <p class=\"muted\">Last updated: {datetime.utcnow().strftime('%Y-%m-%d')} (UTC)</p>
+
+            <p>
+                If you want us to delete your data from Conduit, email <a href=\"mailto:{support_email}\">{support_email}</a>.
+            </p>
+
+            <p>In your request, include:</p>
+            <ol>
+                <li>Your account email address.</li>
+                <li>If applicable, the Facebook Page or Instagram account you connected.</li>
+                <li>The subject line <code>Data Deletion Request</code>.</li>
+            </ol>
+
+            <p>
+                We will verify the request and delete your account data and any connected integration data that we control.
+                Some records may be retained if required for security, fraud prevention, or legal compliance.
+            </p>
+
+            <p class=\"muted\">
+                If you used Facebook Login with Conduit, you can also remove the app from your Facebook settings.
+            </p>
+        </div>
+    </body>
+</html>"""
+        return HTMLResponse(content=html)
 
 
 # ── Serve React frontend (production builds copied by render-build.sh) ──

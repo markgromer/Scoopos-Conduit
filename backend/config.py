@@ -47,6 +47,7 @@ class Settings(BaseSettings):
     # SendGrid
     sendgrid_api_key: str = ""
     sendgrid_from_email: str = "noreply@yourdomain.com"
+    support_email: str = "support@yourdomain.com"
 
     # GoHighLevel
     ghl_api_key: str = ""
