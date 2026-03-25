@@ -15,7 +15,8 @@ from backend.models.user import User
 from backend.schemas.user import UserCreate, UserLogin, UserOut, Token
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Use bcrypt_sha256 to safely support passwords longer than bcrypt's 72-byte limit.
+pwd_context = CryptContext(schemes=["bcrypt_sha256", "bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 logger = logging.getLogger(__name__)
