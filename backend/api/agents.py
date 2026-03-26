@@ -245,7 +245,7 @@ async def start_meta_connect(
             "client_id": client_id,
             "redirect_uri": redirect_uri,
             "response_type": "code",
-            "scope": "pages_show_list,pages_manage_metadata,pages_messaging,instagram_basic,instagram_manage_messages,business_management",
+            "scope": "pages_show_list,pages_manage_metadata,pages_messaging,business_management",
             "state": state,
         }
     )
