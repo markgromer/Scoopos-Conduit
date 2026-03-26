@@ -259,10 +259,21 @@ async def meta_connect_callback(
     request: Request,
     code: str | None = None,
     state: str | None = None,
+    error: str | None = None,
+    error_reason: str | None = None,
+    error_description: str | None = None,
     db: AsyncSession = Depends(get_db),
 ):
+    if state and (error or error_reason or error_description):
+        try:
+            agent_id, _user_id = _parse_meta_connect_state(state)
+            message = error_reason or error or error_description or "facebook_oauth_failed"
+            return RedirectResponse(_agent_channels_url(agent_id, meta_error=message), status_code=302)
+        except HTTPException:
+            raise HTTPException(status_code=400, detail=error_description or error_reason or error or "Meta connect failed")
+
     if not code or not state:
-        raise HTTPException(status_code=400, detail="Missing Meta connect code/state")
+        raise HTTPException(status_code=400, detail="Meta connect did not return an authorization code")
 
     agent_id, user_id = _parse_meta_connect_state(state)
 
