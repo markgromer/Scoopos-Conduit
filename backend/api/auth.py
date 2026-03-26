@@ -123,9 +123,13 @@ def _provider_config(provider: str):
             "scopes": "openid email profile",
         }
     if provider == "facebook":
-        if not settings.facebook_client_id or not settings.facebook_client_secret:
+        client_id = settings.facebook_client_id or settings.meta_app_id
+        client_secret = settings.facebook_client_secret or settings.meta_app_secret
+        if not client_id or not client_secret:
             raise HTTPException(status_code=503, detail="Facebook OAuth is not configured")
         return {
+            "client_id": client_id,
+            "client_secret": client_secret,
             "auth_url": "https://www.facebook.com/v18.0/dialog/oauth",
             "token_url": "https://graph.facebook.com/v18.0/oauth/access_token",
             "scopes": "email,public_profile",
@@ -155,7 +159,7 @@ async def oauth_start(provider: str, request: Request, return_url: bool = False)
 
     if provider == "facebook":
         params = {
-            "client_id": settings.facebook_client_id,
+            "client_id": cfg["client_id"],
             "redirect_uri": redirect_uri,
             "response_type": "code",
             "scope": cfg["scopes"],
@@ -214,8 +218,8 @@ async def oauth_callback(provider: str, request: Request, code: str | None = Non
                 token_resp = await client.get(
                     cfg["token_url"],
                     params={
-                        "client_id": settings.facebook_client_id,
-                        "client_secret": settings.facebook_client_secret,
+                        "client_id": cfg["client_id"],
+                        "client_secret": cfg["client_secret"],
                         "redirect_uri": redirect_uri,
                         "code": code,
                     },

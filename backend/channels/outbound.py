@@ -4,16 +4,20 @@ Each sender knows how to deliver a message through its platform API.
 """
 import logging
 import httpx
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from twilio.rest import Client as TwilioClient
 
 from backend.config import settings
 from backend.models.agent import Agent
 from backend.models.conversation import ChannelType
+from backend.models.meta_connection import AgentMetaConnection
 
 logger = logging.getLogger(__name__)
 
 
 async def send_reply(
+    db: AsyncSession,
     agent: Agent,
     channel: ChannelType,
     recipient_id: str,
@@ -30,12 +34,22 @@ async def send_reply(
     }
     sender = senders.get(channel, _send_noop)
     try:
-        await sender(agent, recipient_id, message)
+        await sender(db, agent, recipient_id, message)
     except Exception:
         logger.exception(f"Failed to send {channel.value} reply to {recipient_id}")
 
 
-async def _send_sms(agent: Agent, recipient: str, message: str):
+async def _get_meta_access_token(db: AsyncSession, agent: Agent) -> str:
+    result = await db.execute(
+        select(AgentMetaConnection).where(AgentMetaConnection.agent_id == agent.id)
+    )
+    connection = result.scalar_one_or_none()
+    if connection and connection.page_access_token:
+        return connection.page_access_token
+    return settings.meta_page_access_token
+
+
+async def _send_sms(db: AsyncSession, agent: Agent, recipient: str, message: str):
     """Send SMS via Twilio."""
     if not settings.twilio_account_sid:
         logger.warning("Twilio not configured, skipping SMS send")
@@ -53,9 +67,9 @@ async def _send_sms(agent: Agent, recipient: str, message: str):
     logger.info(f"SMS sent to {recipient}")
 
 
-async def _send_facebook(agent: Agent, recipient: str, message: str):
+async def _send_facebook(db: AsyncSession, agent: Agent, recipient: str, message: str):
     """Send message via Facebook Messenger Graph API."""
-    token = settings.meta_page_access_token
+    token = await _get_meta_access_token(db, agent)
     if not token:
         logger.warning("Meta page access token not configured")
         return
@@ -73,9 +87,9 @@ async def _send_facebook(agent: Agent, recipient: str, message: str):
             logger.error(f"Facebook send failed: {resp.text}")
 
 
-async def _send_instagram(agent: Agent, recipient: str, message: str):
+async def _send_instagram(db: AsyncSession, agent: Agent, recipient: str, message: str):
     """Send message via Instagram Messaging API (same Graph API, different endpoint)."""
-    token = settings.meta_page_access_token
+    token = await _get_meta_access_token(db, agent)
     if not token:
         logger.warning("Meta page access token not configured")
         return
@@ -93,7 +107,7 @@ async def _send_instagram(agent: Agent, recipient: str, message: str):
             logger.error(f"Instagram send failed: {resp.text}")
 
 
-async def _send_email(agent: Agent, recipient: str, message: str):
+async def _send_email(db: AsyncSession, agent: Agent, recipient: str, message: str):
     """Send email reply via SendGrid."""
     if not settings.sendgrid_api_key:
         logger.warning("SendGrid not configured, skipping email send")
@@ -119,6 +133,6 @@ async def _send_email(agent: Agent, recipient: str, message: str):
             logger.error(f"SendGrid send failed: {resp.text}")
 
 
-async def _send_noop(agent: Agent, recipient: str, message: str):
+async def _send_noop(db: AsyncSession, agent: Agent, recipient: str, message: str):
     """No-op sender for channels that don't support push replies."""
     logger.debug(f"Noop send for recipient={recipient}")

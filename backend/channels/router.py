@@ -138,6 +138,7 @@ async def route_inbound_message(
 
     # 8. Send reply through the correct channel
     await send_reply(
+        db=db,
         agent=full_agent,
         channel=channel,
         recipient_id=sender_id,

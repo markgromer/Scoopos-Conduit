@@ -94,6 +94,35 @@ class ApiClient {
     });
   }
 
+  async startMetaConnect(agentId: string) {
+    return this.request<{ url: string }>(
+      `/agents/${agentId}/meta/connect/start?return_url=1`
+    );
+  }
+
+  async getMetaConnectStatus(agentId: string) {
+    return this.request<any>(`/agents/${agentId}/meta/connect/status`);
+  }
+
+  async getMetaConnectSession(agentId: string, sessionId: string) {
+    return this.request<any>(
+      `/agents/${agentId}/meta/connect/session/${sessionId}`
+    );
+  }
+
+  async completeMetaConnect(agentId: string, sessionId: string, pageId: string) {
+    return this.request<any>(`/agents/${agentId}/meta/connect/complete`, {
+      method: "POST",
+      body: JSON.stringify({ session_id: sessionId, page_id: pageId }),
+    });
+  }
+
+  async disconnectMetaConnect(agentId: string) {
+    return this.request<any>(`/agents/${agentId}/meta/connect`, {
+      method: "DELETE",
+    });
+  }
+
   async deleteAgent(id: string) {
     return this.request<void>(`/agents/${id}`, { method: "DELETE" });
   }

@@ -1,17 +1,23 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 
 export default function AgentConfig() {
   const { agentId } = useParams<{ agentId: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [agent, setAgent] = useState<any>(null);
-  const [tab, setTab] = useState<string>("voice");
+  const [tab, setTab] = useState<string>(searchParams.get("tab") || "voice");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (agentId) api.getAgent(agentId).then(setAgent);
   }, [agentId]);
+
+  useEffect(() => {
+    const nextTab = searchParams.get("tab") || "voice";
+    setTab(nextTab);
+  }, [searchParams]);
 
   if (!agent) return <div className="text-gray-500">Loading...</div>;
 
@@ -22,6 +28,34 @@ export default function AgentConfig() {
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const refreshAgent = async () => {
+    const refreshed = await api.getAgent(agent.id);
+    setAgent(refreshed);
+  };
+
+  const setActiveTab = (nextTab: string) => {
+    const nextParams = new URLSearchParams(searchParams);
+    if (nextTab === "voice") {
+      nextParams.delete("tab");
+    } else {
+      nextParams.set("tab", nextTab);
+    }
+    setSearchParams(nextParams, { replace: true });
+  };
+
+  const clearMetaNoticeParams = () => {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("meta_connected");
+    nextParams.delete("meta_error");
+    setSearchParams(nextParams, { replace: true });
+  };
+
+  const clearMetaSessionParam = () => {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("meta_session");
+    setSearchParams(nextParams, { replace: true });
   };
 
   const tabs = [
@@ -54,7 +88,7 @@ export default function AgentConfig() {
           {tabs.map((t) => (
             <button
               key={t.id}
-              onClick={() => setTab(t.id)}
+              onClick={() => setActiveTab(t.id)}
               className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
                 tab === t.id
                   ? "border-brand-600 text-brand-600"
@@ -73,7 +107,19 @@ export default function AgentConfig() {
         {tab === "pricing" && <PricingTab agent={agent} onRefresh={() => api.getAgent(agent.id).then(setAgent)} />}
         {tab === "areas" && <ServiceAreaTab agent={agent} onRefresh={() => api.getAgent(agent.id).then(setAgent)} />}
         {tab === "objections" && <ObjectionsTab agent={agent} onRefresh={() => api.getAgent(agent.id).then(setAgent)} />}
-        {tab === "channels" && <ChannelsTab agent={agent} onSave={save} saving={saving} />}
+        {tab === "channels" && (
+          <ChannelsTab
+            agent={agent}
+            onSave={save}
+            saving={saving}
+            onRefresh={refreshAgent}
+            metaSessionId={searchParams.get("meta_session") || ""}
+            metaConnected={searchParams.get("meta_connected") || ""}
+            metaError={searchParams.get("meta_error") || ""}
+            clearMetaNoticeParams={clearMetaNoticeParams}
+            clearMetaSessionParam={clearMetaSessionParam}
+          />
+        )}
         {tab === "crm" && <CrmTab agent={agent} onSave={save} saving={saving} />}
         {tab === "advanced" && <AdvancedTab agent={agent} onSave={save} saving={saving} />}
       </div>
@@ -436,15 +482,233 @@ function ObjectionsTab({ agent, onRefresh }: any) {
 }
 
 /* ── Channels tab ── */
-function ChannelsTab({ agent, onSave, saving }: any) {
+function ChannelsTab({
+  agent,
+  onSave,
+  saving,
+  onRefresh,
+  metaSessionId,
+  metaConnected,
+  metaError,
+  clearMetaNoticeParams,
+  clearMetaSessionParam,
+}: any) {
   const [phone, setPhone] = useState(agent.twilio_phone_number || "");
   const [pageId, setPageId] = useState(agent.meta_page_id || "");
   const [igId, setIgId] = useState(agent.meta_ig_account_id || "");
   const [emailInbox, setEmailInbox] = useState(agent.email_inbox || "");
+  const [metaStatus, setMetaStatus] = useState<any>({ connected: false });
+  const [sessionPages, setSessionPages] = useState<any[]>([]);
+  const [connectingMeta, setConnectingMeta] = useState(false);
+  const [disconnectingMeta, setDisconnectingMeta] = useState(false);
+  const [selectingPageId, setSelectingPageId] = useState("");
+  const [metaFeedback, setMetaFeedback] = useState("");
+
+  useEffect(() => {
+    setPhone(agent.twilio_phone_number || "");
+    setPageId(agent.meta_page_id || "");
+    setIgId(agent.meta_ig_account_id || "");
+    setEmailInbox(agent.email_inbox || "");
+  }, [
+    agent.twilio_phone_number,
+    agent.meta_page_id,
+    agent.meta_ig_account_id,
+    agent.email_inbox,
+  ]);
+
+  useEffect(() => {
+    api.getMetaConnectStatus(agent.id).then(setMetaStatus).catch(() => {
+      setMetaStatus({ connected: false });
+    });
+  }, [agent.id]);
+
+  useEffect(() => {
+    if (metaConnected) {
+      setMetaFeedback("Facebook Page connected.");
+      clearMetaNoticeParams();
+    }
+  }, [metaConnected, clearMetaNoticeParams]);
+
+  useEffect(() => {
+    if (!metaError) return;
+
+    const messages: Record<string, string> = {
+      no_pages_found: "Facebook signed in, but no business Pages were available to connect.",
+      facebook_token_failed: "Facebook sign-in finished, but we could not read your Page connection.",
+      facebook_request_failed: "Facebook returned an error while connecting your Page.",
+      facebook_connect_failed: "Facebook connection failed. Please try again.",
+      "Facebook authorized successfully, but page subscription failed": "The Page connected, but Meta would not subscribe it to Messenger webhooks.",
+    };
+
+    setMetaFeedback(messages[metaError] || metaError.replaceAll("_", " "));
+    clearMetaNoticeParams();
+  }, [metaError, clearMetaNoticeParams]);
+
+  useEffect(() => {
+    if (!metaSessionId) {
+      setSessionPages([]);
+      return;
+    }
+
+    api
+      .getMetaConnectSession(agent.id, metaSessionId)
+      .then((resp) => {
+        setSessionPages(resp.pages || []);
+      })
+      .catch((err: any) => {
+        setMetaFeedback(err?.message || "Could not load your Facebook Pages.");
+        clearMetaSessionParam();
+      });
+  }, [agent.id, metaSessionId, clearMetaSessionParam]);
+
+  const startMetaConnect = async () => {
+    try {
+      setConnectingMeta(true);
+      const resp = await api.startMetaConnect(agent.id);
+      window.location.href = resp.url;
+    } catch (err: any) {
+      setMetaFeedback(err?.message || "Could not start Facebook connection.");
+      setConnectingMeta(false);
+    }
+  };
+
+  const choosePage = async (selectedPageId: string) => {
+    try {
+      setSelectingPageId(selectedPageId);
+      const resp = await api.completeMetaConnect(
+        agent.id,
+        metaSessionId,
+        selectedPageId
+      );
+      setMetaStatus(resp);
+      setPageId(resp.page_id || "");
+      setIgId(resp.ig_account_id || "");
+      setMetaFeedback(`Connected ${resp.page_name}.`);
+      setSessionPages([]);
+      clearMetaSessionParam();
+      await onRefresh();
+    } catch (err: any) {
+      setMetaFeedback(err?.message || "Could not finish Facebook connection.");
+    } finally {
+      setSelectingPageId("");
+    }
+  };
+
+  const disconnectMeta = async () => {
+    try {
+      setDisconnectingMeta(true);
+      await api.disconnectMetaConnect(agent.id);
+      setMetaStatus({ connected: false });
+      setPageId("");
+      setIgId("");
+      setMetaFeedback("Facebook Page disconnected.");
+      await onRefresh();
+    } catch (err: any) {
+      setMetaFeedback(err?.message || "Could not disconnect Facebook.");
+    } finally {
+      setDisconnectingMeta(false);
+    }
+  };
 
   return (
     <div className="space-y-5">
       <h3 className="font-medium">Channel Connections</h3>
+
+      <div className="rounded-xl border border-blue-200 bg-blue-50 p-5 space-y-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div>
+            <h4 className="text-sm font-semibold text-gray-900">
+              Facebook & Messenger
+            </h4>
+            <p className="mt-1 text-sm text-gray-600">
+              End users should only need to click connect, sign in to Facebook,
+              and choose the business Page they want Conduit to use.
+            </p>
+            {metaStatus.connected ? (
+              <div className="mt-3 space-y-1 text-sm text-gray-700">
+                <div>
+                  Connected Page: <span className="font-medium">{metaStatus.page_name || metaStatus.page_id}</span>
+                </div>
+                {metaStatus.ig_username && (
+                  <div>
+                    Linked Instagram: <span className="font-medium">@{metaStatus.ig_username}</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="mt-3 text-sm text-gray-700">
+                No Facebook Page connected yet.
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={startMetaConnect}
+              disabled={connectingMeta}
+              className="px-4 py-2 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 disabled:opacity-50"
+            >
+              {connectingMeta
+                ? "Opening Facebook..."
+                : metaStatus.connected
+                  ? "Reconnect Facebook"
+                  : "Connect Facebook Page"}
+            </button>
+            {metaStatus.connected && (
+              <button
+                onClick={disconnectMeta}
+                disabled={disconnectingMeta}
+                className="px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-white disabled:opacity-50"
+              >
+                {disconnectingMeta ? "Disconnecting..." : "Disconnect"}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {metaFeedback && (
+          <div className="rounded-lg bg-white px-3 py-2 text-sm text-gray-700 border border-blue-100">
+            {metaFeedback}
+          </div>
+        )}
+
+        {sessionPages.length > 0 && (
+          <div className="space-y-3 rounded-lg border border-blue-100 bg-white p-4">
+            <div>
+              <div className="text-sm font-medium text-gray-900">
+                Choose the Facebook Page to connect
+              </div>
+              <div className="text-sm text-gray-500">
+                We found multiple Pages on this Facebook account.
+              </div>
+            </div>
+            <div className="space-y-2">
+              {sessionPages.map((page) => (
+                <button
+                  key={page.id}
+                  onClick={() => choosePage(page.id)}
+                  disabled={selectingPageId === page.id}
+                  className="w-full text-left rounded-lg border border-gray-200 px-4 py-3 hover:border-brand-400 hover:bg-brand-50 disabled:opacity-50"
+                >
+                  <div className="font-medium text-sm text-gray-900">
+                    {page.name}
+                  </div>
+                  <div className="mt-1 text-xs text-gray-500">
+                    {page.ig_username
+                      ? `Also linked to @${page.ig_username}`
+                      : "Messenger only"}
+                  </div>
+                  {selectingPageId === page.id && (
+                    <div className="mt-2 text-xs text-brand-700">
+                      Connecting this Page...
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -457,26 +721,36 @@ function ChannelsTab({ agent, onSave, saving }: any) {
           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Facebook Page ID
-        </label>
-        <input
-          value={pageId}
-          onChange={(e) => setPageId(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-        />
+
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-4">
+        <div>
+          <h4 className="text-sm font-medium text-gray-900">Manual fallback</h4>
+          <p className="text-xs text-gray-500 mt-1">
+            Only use these if you are troubleshooting a connection or wiring a Page manually.
+          </p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Facebook Page ID
+          </label>
+          <input
+            value={pageId}
+            onChange={(e) => setPageId(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Instagram Account ID
+          </label>
+          <input
+            value={igId}
+            onChange={(e) => setIgId(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+          />
+        </div>
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Instagram Account ID
-        </label>
-        <input
-          value={igId}
-          onChange={(e) => setIgId(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-        />
-      </div>
+
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Email Inbox
