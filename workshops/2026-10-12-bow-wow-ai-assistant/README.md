@@ -3,6 +3,8 @@
 
 **Today's win:** Build a lead board, teach ChatGPT your business rules, and work one prospect from "new lead" to "next action." No coding, domain, API key, paid automation, or GitHub account required.
 
+> **TRY THE INTERACTIVE LAB:** https://scoopos-bowwow-lab.markgromer.workers.dev/ (no login needed)
+>
 > **Start here:** [5-minute setup](START-HERE.md) · [Live lesson](LESSON-60-MINUTES.md) · [Copy/paste prompts](PROMPTS.md) · [Hands-on practice](practice/index.html)
 
 ## What you are building
