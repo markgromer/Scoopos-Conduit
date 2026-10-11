@@ -1,0 +1,6 @@
+Lead ID,Customer Name,Email,Preferred Contact,ZIP,Service Interest,Dog Count,Source,Stage,Date Received,Last Contact,Next Follow-Up,Consent to Contact,Owner,Notes
+L-001,Jamie Sample,jamie@example.com,Email,85748,Weekly Cleanup,2,Website,New,2026-10-10,,2026-10-12,Yes,Owner,Asked about weekly service; price and service area not verified
+L-002,Alex Example,alex@example.com,Email,85747,Twice-Weekly Cleanup,1,Referral,Quote Sent,2026-10-01,2026-10-05,2026-10-12,Yes,Owner,Already received a quote; no reply yet
+L-003,Sam Fiction,sam@example.com,Email,85706,One-Time Cleanup,3,Social Media,Needs Reply,2026-10-11,,2026-10-12,Unknown,Owner,Interest expressed; permission to send outbound message is not verified
+L-004,Taylor Demo,taylor@example.com,Email,85745,Weekly Cleanup,2,Website,Paused,2026-10-02,2026-10-10,2026-11-01,No,Owner,Requested no follow-ups; do not contact
+L-005,Casey Practice,casey@example.com,Email,85730,Weekly Cleanup,1,Referral,Won,2026-10-03,2026-10-09,,Yes,Owner,Demo booking recorded; no sales follow-up needed
