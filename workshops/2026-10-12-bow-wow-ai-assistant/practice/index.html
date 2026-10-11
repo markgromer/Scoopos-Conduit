@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111a31">
+<meta name="description" content="ScoopOS Bow Wow: build a beginner-friendly AI lead follow-up workflow in five hands-on steps.">
+<title>ScoopOS Bow Wow Lab | Your First AI Business Assistant</title>
+<style>
+:root{--navy:#101a30;--ink:#14223a;--blue:#2869f5;--gold:#f6b843;--paper:#f6f8fb;--line:#dce3ee;--muted:#536379;--green:#106b57;--white:#fff}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,textarea,select{font:inherit} button{cursor:pointer}
+a{color:#164fca}
+.top{background:var(--navy);color:#fff;position:relative;overflow:hidden}
+.top:before{content:"";position:absolute;right:-80px;top:-140px;width:370px;height:370px;border:55px solid #223e79;border-radius:50%;opacity:.35;pointer-events:none}
+.topin{max-width:960px;margin:auto;padding:22px 24px 54px;position:relative}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logotype{font-size:23px;letter-spacing:-1.1px;font-weight:950}
+.logotype b{color:var(--gold)}
+.kicker{background:#ffffff16;border:1px solid #ffffff35;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;letter-spacing:.04em}
+.eyebrow{color:var(--gold);font-weight:900;text-transform:uppercase;letter-spacing:.12em;font-size:12px;margin:38px 0 10px}
+h1{font-size:clamp(32px,5.8vw,58px);line-height:1.08;letter-spacing:-.045em;margin:0;max-width:700px}
+.subtitle{font-size:17px;color:#d8e4fa;margin:16px 0 0;max-width:670px}
+.progress{max-width:960px;margin:-23px auto 0;position:relative;padding:0 24px}
+.progressbar{background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px 19px;box-shadow:0 7px 24px #132a5112;display:flex;align-items:center;gap:16px}
+.mini{font-weight:900;color:#183465;white-space:nowrap;font-size:12px;letter-spacing:.05em;text-transform:uppercase}
+.track{background:#e6ebf4;border-radius:30px;flex:1;height:8px;overflow:hidden}
+.fill{background:linear-gradient(90deg,#2572fd,#7cb2ff);height:100%;width:0%;transition:width .25s ease}
+.counter{font-size:13px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+.wrap{max-width:960px;margin:auto;padding:28px 24px 70px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:24px;padding:clamp(22px,4vw,42px);box-shadow:0 15px 38px #2233520a;min-height:410px}
+.screen{display:none}
+.screen.active{display:block;animation:fade .18s ease-out}
+@keyframes fade{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.stepnum{display:inline-block;color:#174fcd;background:#e9f0ff;border-radius:8px;padding:5px 9px;text-transform:uppercase;letter-spacing:.08em;font-weight:850;font-size:11px}
+h2{font-size:clamp(24px,3.9vw,36px);line-height:1.16;letter-spacing:-.033em;margin:15px 0 11px}
+.intro{max-width:680px;color:var(--muted);margin:0 0 25px;font-size:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field label{display:block;font-weight:800;font-size:13px;margin:0 0 6px}
+.field input,.field select,.field textarea{display:block;width:100%;padding:12px 13px;border:1.5px solid #bac8db;border-radius:11px;background:#fff;color:var(--ink);outline-color:var(--blue)}
+.field textarea{resize:vertical;min-height:70px}
+.hint{font-size:12px;color:var(--muted);margin-top:5px}
+.buttonrow{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:27px}
+.btn{border:none;background:var(--blue);color:white;padding:13px 20px;border-radius:12px;font-weight:800;min-height:48px;display:inline-flex;align-items:center;gap:9px;text-decoration:none;justify-content:center}
+.btn:hover{background:#185ce7}
+.btn.secondary{background:#eaf0fb;color:#1d4599}
+.btn.secondary:hover{background:#dfe9ff}
+.btn.ghost{background:transparent;color:#415574;padding-left:6px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.inline-note{font-size:13px;color:var(--muted)}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:24px 0}
+.stat{border:1px solid var(--line);border-radius:12px;padding:15px;background:#f8fafd}
+.stat strong{font-size:23px;display:block;font-weight:900}
+.stat span{color:var(--muted);font-size:12px}
+.leadgrid{display:grid;gap:12px}
+.lead{display:block;text-align:left;background:#fff;border:2px solid var(--line);border-radius:15px;padding:17px;width:100%;transition:border-color .1s}
+.lead:hover,.lead:focus-visible{border-color:#487df2}
+.lead strong{font-size:16px;display:block;margin:0 0 3px}
+.lead small{font-size:12px;color:var(--muted)}
+.lead p{margin:8px 0 0;color:#40526b;font-size:14px}
+.tag{display:inline-block;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:800;white-space:nowrap;background:#eaf0fe;color:#2253ae}
+.tag.warn{background:#fff2cf;color:#835400}
+.tag.stop{background:#ffe9e9;color:#9b3030}
+.leadtop{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.feedback{display:none;border-radius:12px;padding:13px 15px;font-size:14px;font-weight:650;margin-top:16px;background:#edf5ff;color:#204786;border:1px solid #cce1ff}
+.feedback.show{display:block}
+.feedback.good{background:#e7f8f1;border-color:#bdebdc;color:#155b47}
+.feedback.bad{background:#fff4e5;border-color:#f1d5aa;color:#74480d}
+.choices{display:grid;gap:12px}
+.choice{border:2px solid var(--line);padding:17px 19px;background:#fff;text-align:left;border-radius:14px;color:#1a2b45;width:100%;font-size:15px;line-height:1.55}
+.choice:hover{border-color:#7ca1ef}
+.choice:focus-visible{outline:3px solid #b4d3ff}
+.choice .letter{font-size:12px;display:inline-flex;background:#eaf0fb;border-radius:6px;font-weight:900;width:24px;height:24px;align-items:center;justify-content:center;margin-right:8px;color:#36578b}
+.callout{border-left:4px solid var(--gold);padding:13px 17px;background:#fff9ea;border-radius:0 11px 11px 0;margin:21px 0;font-size:14px}
+.note{background:#eaf0fa;border-radius:12px;padding:15px 18px;color:#415674;font-size:14px;margin-top:20px}
+.plan{background:#f7fafe;border:1px solid #dae5f9;border-radius:14px;padding:18px;margin-top:18px}
+.plan h3{margin:0 0 10px;font-size:16px}
+.plan dl{margin:0;display:grid;grid-template-columns:150px 1fr;gap:6px 11px;font-size:14px}
+.plan dt{color:var(--muted)}
+.plan dd{margin:0;font-weight:750}
+.complete{background:#e6f7f1;border:1px solid #b9e7d5;padding:18px;border-radius:15px;margin:18px 0}
+.complete h3{margin:0 0 5px;color:var(--green)}
+.complete p{margin:0;color:#22624e;font-size:14px}
+.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.links a{background:#eaf0fb;padding:10px 13px;border-radius:10px;font-weight:750;font-size:13px;text-decoration:none}
+.footer{font-size:12px;line-height:1.6;color:#5e708b;text-align:center;margin:20px auto}
+@media(max-width:620px){.topin{padding:19px 18px 49px}.brand{align-items:flex-start}.logotype{font-size:20px}.kicker{font-size:10px}.progress{padding:0 13px}.progressbar{padding:13px 14px;gap:9px}.wrap{padding:20px 13px 60px}.panel{padding:22px 17px;border-radius:18px}.grid,.statgrid{grid-template-columns:1fr}.statgrid{margin:14px 0}.stat{padding:10px 13px}.buttonrow .btn{width:100%}.plan dl{grid-template-columns:1fr;gap:2px}.plan dd{margin-bottom:10px}.leadtop{align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="topin">
+    <div class="brand"><span class="logotype">SCOOP<b>OS</b> <span style="opacity:.55;font-weight:400">/</span> BOW WOW LAB</span><span class="kicker">LIVE CLASS STARTER</span></div>
+    <p class="eyebrow">Stop chatting. Start operating.</p>
+    <h1>Build your first AI business assistant.</h1>
+    <p class="subtitle">A real lead. A clear next step. A working follow-up routine. No coding, no mystery integrations.</p>
+  </div>
+</header>
+<div class="progress"><div class="progressbar"><span class="mini">Your build</span><div class="track" aria-hidden="true"><div id="bar" class="fill"></div></div><span class="counter" id="count">0 / 5</span></div></div>
+<main class="wrap">
+<div class="panel">
+<section class="screen active" id="s0">
+  <span class="stepnum">Welcome</span><h2>Today, we're rescuing a forgotten quote.</h2>
+  <p class="intro">Imagine someone asks about weekly cleanup on Saturday. Your day gets busy. By Monday, the lead is buried. We're building the simplest possible system to prevent that.</p>
+  <div class="statgrid">
+    <div class="stat"><strong>5</strong><span>small steps</span></div>
+    <div class="stat"><strong>0</strong><span>lines of code</span></div>
+    <div class="stat"><strong>1</strong><span>next action to remember</span></div>
+  </div>
+  <div class="callout"><b>What this is:</b> a safe practice tool using fictional customers. It does not access ChatGPT, send messages, or write to Airtable. You'll copy the framework to your own accounts when ready.</div>
+  <div class="buttonrow"><button class="btn" id="start">Build my assistant →</button></div>
+</section>
+<section class="screen" id="s1">
+  <span class="stepnum">Step 1 of 5 · Your business brain</span><h2>Teach it what your business actually does.</h2>
+  <p class="intro">A useful AI can't know your prices, service area, or schedule unless you tell it. Give it the basics and an explicit rule not to guess.</p>
+  <div class="grid">
+    <div class="field"><label for="business">Business name</label><input id="business" placeholder="Example Yard Care" autocomplete="organization" maxlength="80"></div>
+    <div class="field"><label for="services">What do you sell?</label><input id="services" placeholder="Weekly pet waste cleanup" maxlength="180"></div>
+    <div class="field"><label for="areas">Where do you serve?</label><input id="areas" placeholder="ZIP list or UNKNOWN" maxlength="180"></div>
+    <div class="field"><label for="prices">Can AI quote a price?</label><select id="prices"><option value="owner">No, prices require owner approval</option><option value="verified">Only from prices I explicitly verify</option></select></div>
+  </div>
+  <div class="note">Your entries stay inside this browser's local storage. No customer data or passwords needed. If unsure of a fact, type <b>UNKNOWN</b>.</div>
+  <div id="businessfeedback" class="feedback" role="status"></div>
+  <div class="buttonrow"><button class="btn" id="savebusiness">Use these rules →</button><button class="btn ghost" data-back="0">← Back</button></div>
+</section>
+<section class="screen" id="s2">
+  <span class="stepnum">Step 2 of 5 · Find</span><h2>Which lead should you handle first?</h2>
+  <p class="intro">Three fictional records. Choose the one where a helpful, permitted response can move the business forward today.</p>
+  <div class="leadgrid">
+    <button class="lead" data-lead="L-001"><div class="leadtop"><strong>Jamie Sample</strong><span class="tag warn">NEW · 2 days old</span></div><small>L-001 · Website · Contact permitted</small><p>Wants weekly cleanup for two dogs. Asked for a quote. No reply recorded; price and coverage need verification.</p></button>
+    <button class="lead" data-lead="L-004"><div class="leadtop"><strong>Taylor Demo</strong><span class="tag stop">DO NOT CONTACT</span></div><small>L-004 · Paused · No contact permission</small><p>Asked the business to stop following up.</p></button>
+    <button class="lead" data-lead="L-005"><div class="leadtop"><strong>Casey Practice</strong><span class="tag">WON</span></div><small>L-005 · Already booked</small><p>Booking was recorded. No sales follow-up is needed.</p></button>
+  </div>
+  <div id="leadfeedback" class="feedback" role="status"></div>
+  <div class="buttonrow"><button class="btn" id="nextlead" disabled>Check my decision →</button><button class="btn ghost" data-back="1">← Back</button></div>
+</section>
+<section class="screen" id="s3">
+  <span class="stepnum">Step 3 of 5 · Draft</span><h2>What would you actually say?</h2>
+  <p class="intro">Jamie wants a quote. You know the dog count, but your current pricing and exact coverage aren't verified. Pick the reply that builds trust instead of inventing answers.</p>
+  <div class="choices">
+    <button class="choice" data-answer="wrong-price"><span class="letter">A</span>"We can do that for $19 this week. I have a truck in your neighborhood tomorrow. Pay here to lock it in!"</button>
+    <button class="choice" data-answer="correct"><span class="letter">B</span>"Thanks for reaching out! We can look into weekly cleanup for your two dogs. Could you send your service address so I can confirm you're in our route? I'll get you an accurate quote once I verify the details."</button>
+    <button class="choice" data-answer="weak"><span class="letter">C</span>"Thanks for your interest. Please see our website for further information."</button>
+  </div>
+  <div id="replyfeedback" class="feedback" role="status"></div>
+  <div class="buttonrow"><button class="btn" id="nextreply" disabled>Use this reply →</button><button class="btn ghost" data-back="2">← Back</button></div>
+</section>
+<section class="screen" id="s4">
+  <span class="stepnum">Step 4 of 5 · Follow up</span><h2>The reply is drafted. Don't lose the next step.</h2>
+  <p class="intro">Nothing has actually been sent. Record what a human needs to do next and when to check that it happened.</p>
+  <div class="grid">
+    <div class="field"><label for="nextstage">Stage for Jamie</label><select id="nextstage"><option value="Needs Reply">Needs Reply (draft, not sent)</option><option value="Quote Sent">Quote Sent (would be untrue)</option><option value="Won">Won (would be untrue)</option></select></div>
+    <div class="field"><label for="followupdate">Date to review the next action</label><input type="date" id="followupdate" value="2026-10-13"></div>
+  </div>
+  <div class="plan"><h3>Proposed record changes (fictional)</h3><dl><dt>Lead</dt><dd>L-001 · Jamie Sample</dd><dt>Current stage</dt><dd>New</dd><dt>Proposed stage</dt><dd>Needs Reply</dd><dt>Owner action</dt><dd>Review draft, verify details, then send through normal channel only with permission</dd><dt>External messages</dt><dd>None sent</dd></dl></div>
+  <div id="planfeedback" class="feedback" role="status"></div>
+  <div class="buttonrow"><button class="btn" id="finish">Save this practice plan →</button><button class="btn ghost" data-back="3">← Back</button></div>
+</section>
+<section class="screen" id="s5">
+  <span class="stepnum">Step 5 of 5 · Your framework</span><h2>That's your first operating workflow.</h2>
+  <p class="intro">Now you understand the chain: lead comes in → verify facts → draft response → human approves → record next action. You can repeat this without writing a single line of code.</p>
+  <div class="complete"><h3>✓ Practice mission completed</h3><p id="completedtext">You created a fictional next-action plan. No external systems were changed and no messages were sent.</p></div>
+  <div class="callout"><b>Make it real:</b> Download the practice lead board, import it to a private Airtable base, and copy your personalized assistant prompt into ChatGPT. If a connector is available, verify reads first and approve each write. Otherwise, update your board yourself.</div>
+  <div class="buttonrow">
+    <button class="btn" id="copyassistant">Copy my assistant prompt</button>
+    <button class="btn secondary" id="downloadcsv">Download my practice board ↓</button>
+  </div>
+  <div id="finishfeedback" class="feedback" role="status"></div>
+  <div class="links"><a href="https://github.com/markgromer/Scoopos-Conduit/tree/main/workshops/2026-10-12-bow-wow-ai-assistant" target="_blank" rel="noopener noreferrer">Full workshop kit ↗</a><a href="https://github.com/markgromer/Scoopos-Conduit/blob/main/workshops/2026-10-12-bow-wow-ai-assistant/PROMPTS.md" target="_blank" rel="noopener noreferrer">Six copy/paste prompts ↗</a><a href="https://skool.com/localgiants" target="_blank" rel="noopener noreferrer">ScoopOS community ↗</a></div>
+  <div class="buttonrow"><button class="btn ghost" id="restart">↻ Practice again</button></div>
+</section>
+</div>
+<p class="footer">ScoopOS Bow Wow Lab · Demo customers only · Local practice state · No live CRM, messaging, or LeadBridge integration.</p>
+</main>
+<script>
+(function(){
+"use strict";
+var current=0;
+var saved={business:"",services:"",areas:"",prices:"owner",followup:"2026-10-13"};
+var leadCorrect=false,replyCorrect=false;
+var byId=function(id){return document.getElementById(id);};
+function setFeedback(id,msg,kind){var el=byId(id);el.textContent=msg;el.className="feedback show "+(kind||"");}
+function clearFeedback(id){var el=byId(id);el.className="feedback";el.textContent="";}
+function show(n){current=n;document.querySelectorAll(".screen").forEach(function(el){el.classList.toggle("active",el.id==="s"+n);});byId("bar").style.width=(Math.min(n,5)/5*100)+"%";byId("count").textContent=Math.min(n,5)+" / 5";window.scrollTo({top:0,behavior:"smooth"});}
+try{var state=JSON.parse(localStorage.getItem("scoopos-bowwow-2026")||"null");if(state&&typeof state==="object"){saved=Object.assign(saved,state);}}catch(e){}
+["business","services","areas"].forEach(function(id){byId(id).value=saved[id]||"";});
+byId("prices").value=saved.prices||"owner";byId("followupdate").value=saved.followup||"2026-10-13";
+byId("start").addEventListener("click",function(){show(1);});
+document.querySelectorAll("[data-back]").forEach(function(el){el.addEventListener("click",function(){show(Number(el.dataset.back));});});
+byId("savebusiness").addEventListener("click",function(){
+  var b=byId("business").value.trim(),s=byId("services").value.trim(),a=byId("areas").value.trim();
+  if(!b||!s||!a){setFeedback("businessfeedback","Fill in all three text fields. UNKNOWN is an acceptable answer when you haven't verified something.","bad");return;}
+  saved.business=b;saved.services=s;saved.areas=a;saved.prices=byId("prices").value;
+  try{localStorage.setItem("scoopos-bowwow-2026",JSON.stringify(saved));}catch(e){}
+  clearFeedback("businessfeedback");show(2);
+});
+document.querySelectorAll("[data-lead]").forEach(function(el){el.addEventListener("click",function(){
+  leadCorrect=el.dataset.lead==="L-001";byId("nextlead").disabled=!leadCorrect;
+  if(leadCorrect){setFeedback("leadfeedback","Correct. Jamie has an unanswered inbound request and permission to reply. You still need to verify facts before quoting.","good");}
+  else if(el.dataset.lead==="L-004"){setFeedback("leadfeedback","Taylor requested no follow-ups. Protect that choice. No outbound message.","bad");}
+  else{setFeedback("leadfeedback","Casey already booked. A sales follow-up would waste everybody's time.","bad");}
+});});
+byId("nextlead").addEventListener("click",function(){if(leadCorrect)show(3);});
+document.querySelectorAll("[data-answer]").forEach(function(el){el.addEventListener("click",function(){
+  replyCorrect=el.dataset.answer==="correct";byId("nextreply").disabled=!replyCorrect;
+  if(replyCorrect){setFeedback("replyfeedback","Exactly. Short, helpful, and clear. You didn't make up a price or promise a route slot. This is only a draft, not a sent message.","good");}
+  else if(el.dataset.answer==="wrong-price"){setFeedback("replyfeedback","That invents both price and availability. Trust dies quickly when an automated quote isn't real. Try again.","bad");}
+  else{setFeedback("replyfeedback","Polite, but it pushes the prospect away without answering or moving anything forward. Try again.","bad");}
+});});
+byId("nextreply").addEventListener("click",function(){if(replyCorrect)show(4);});
+byId("finish").addEventListener("click",function(){
+  if(byId("nextstage").value!=="Needs Reply"){setFeedback("planfeedback","A draft has NOT been sent and the job is NOT booked. Choose Needs Reply to keep your record truthful.","bad");return;}
+  if(!byId("followupdate").value){setFeedback("planfeedback","Pick a date to review the next action.","bad");return;}
+  saved.followup=byId("followupdate").value;
+  try{localStorage.setItem("scoopos-bowwow-2026",JSON.stringify(saved));}catch(e){}
+  clearFeedback("planfeedback");
+  byId("completedtext").textContent="Practice plan for L-001: Needs Reply, review on "+saved.followup+". No Airtable record changed and no message was sent.";
+  show(5);
+});
+function promptText(){return [
+"Act as my careful, human-supervised front-office assistant.",
+"Business: "+saved.business,
+"Verified services: "+saved.services,
+"Service area: "+saved.areas,
+"Pricing rule: "+(saved.prices==="verified"?"Quote only from prices I explicitly supply and verify; otherwise ask for review.":"All quotes require owner approval."),
+"Process: record new leads, prioritize replies where contact is permitted, draft short honest responses, propose next-action dates, and track stages.",
+"Hard rules: Never invent facts, prices, availability or consent. Never send anything or edit a CRM record without approval. Show old and new field values before proposing an edit. Never claim success without verifying a connected action. Flag unknown or denied contact permission and do not initiate outreach.",
+"First ask which customer tracker I use. If you cannot read its records, ask me to upload a CSV. Do not pretend you are connected."
+].join("\n");}
+function feedbackCopy(s){setFeedback("finishfeedback",s,"good");}
+byId("copyassistant").addEventListener("click",function(){
+  var t=promptText();
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){feedbackCopy("Copied. Paste into ChatGPT to start your assistant.");}).catch(function(){fallbackCopy(t);});}
+  else{fallbackCopy(t);}
+});
+function fallbackCopy(t){var x=document.createElement("textarea");x.value=t;x.style.position="fixed";x.style.left="-9999px";document.body.appendChild(x);x.select();try{document.execCommand("copy");feedbackCopy("Copied. Paste into ChatGPT to start your assistant.");}catch(e){setFeedback("finishfeedback","Copy failed in this browser. Use the PROMPTS.md link below.","bad");}document.body.removeChild(x);}
+byId("downloadcsv").addEventListener("click",function(){
+  function csvCell(s){return '"'+String(s==null?"":s).replace(/"/g,'""')+'"';}
+  var rows=[
+  ["Lead ID","Customer Name","Email","Preferred Contact","ZIP","Service Interest","Dog Count","Source","Stage","Date Received","Last Contact","Next Follow-Up","Consent to Contact","Owner","Notes"],
+  ["L-001","Jamie Sample","jamie@example.com","Email","85748","Weekly Cleanup","2","Website","Needs Reply","2026-10-10","",saved.followup,"Yes","Owner","Fictional exercise: reply drafted but NOT sent; verify service area and price"],
+  ["L-002","Alex Example","alex@example.com","Email","85747","Twice-Weekly Cleanup","1","Referral","Quote Sent","2026-10-01","2026-10-05","2026-10-12","Yes","Owner","Demo quote sent; verify before follow-up"],
+  ["L-003","Sam Fiction","sam@example.com","Email","85706","One-Time Cleanup","3","Social Media","Needs Reply","2026-10-11","","2026-10-12","Unknown","Owner","Permission unknown. Do not contact"],
+  ["L-004","Taylor Demo","taylor@example.com","Email","85745","Weekly Cleanup","2","Website","Paused","2026-10-02","2026-10-10","2026-11-01","No","Owner","Asked to stop follow-ups"],
+  ["L-005","Casey Practice","casey@example.com","Email","85730","Weekly Cleanup","1","Referral","Won","2026-10-03","2026-10-09","","Yes","Owner","Fictional booked customer"]
+  ];
+  var csv=rows.map(function(row){return row.map(csvCell).join(",");}).join("\r\n");
+  var blob=new Blob([csv],{type:"text/csv;charset=utf-8"});var url=URL.createObjectURL(blob);
+  var a=document.createElement("a");a.href=url;a.download="scoopos-practice-leads.csv";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  feedbackCopy("Practice CSV generated. Only fictional customers are included.");
+});
+byId("restart").addEventListener("click",function(){leadCorrect=false;replyCorrect=false;byId("nextlead").disabled=true;byId("nextreply").disabled=true;clearFeedback("leadfeedback");clearFeedback("replyfeedback");clearFeedback("finishfeedback");show(0);});
+})();
+</script>
+</body>
+</html>
