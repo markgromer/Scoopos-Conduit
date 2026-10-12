@@ -6,7 +6,7 @@
 
 ## Open these tabs before Zoom
 
-1. **Public slide deck:** https://scoopos-bowwow-masterclass.markgromer.workers.dev/
+1. **Dedicated audience window, share ONLY this URL:** https://scoopos-bowwow-masterclass.markgromer.workers.dev/?audience=1
 2. **Presenter notes console:** https://scoopos-bowwow-masterclass.markgromer.workers.dev/?presenter=1
 3. **Student Agent Lab:** https://scoopos-agent-lab.markgromer.workers.dev/
 4. **Private instructor Airtable demo:** Open the private base named `ScoopOS Bow Wow — AI Agent Demo (Fictional)` in your Airtable account.
@@ -210,7 +210,7 @@ Remind them the code starter is an optional advanced track. They don't need to b
 
 The live build (slides 12–14) has a combined 9 minutes, 20 seconds. If you fall behind, demo the input and the copy/installation step yourself and tell attendees they can complete remaining fields after class. Do not spend five minutes troubleshooting any one student's OAuth.
 
-Keep **the original presentation** open in the window you screen-share. Put `?presenter=1` on your second monitor or a separate window **not shared** with the attendees. Click **Start timer** at the opening. Press **→** or **Space** for the next scene; press **R** for the resource panel.
+Open **?audience=1** in its own browser **window**. That window contains slides ONLY and is the **sole window you select in Zoom's Share → Window menu**. Put `?presenter=1` in another window on a second monitor or outside the shared application. **Never share the whole screen/monitor while the private presenter notes are visible.** The private view displays a yellow warning. Advance slides from the presenter view; the audience view follows automatically. Click **Start timer** at the opening. Press **→** or **Space** for the next scene; press **R** for the resource panel.
 
 ## Live demo checklist
 
