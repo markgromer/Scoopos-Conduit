@@ -1,0 +1,10 @@
+{
+  "name": "scoopos-local-agent-starter",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-only business AI agent lab with tool calling and human approvals",
+  "engines": {"node": ">=20.6"},
+  "scripts": {"start": "node --env-file=.env server.mjs", "test": "node --test tests/*.test.mjs"},
+  "license": "MIT"
+}

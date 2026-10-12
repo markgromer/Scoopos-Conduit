@@ -1,0 +1,34 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ScoopOS Local Agent</title><style>
+:root{--ink:#131d34;--blue:#255edb;--bg:#f3f6fb;--line:#dae3ee}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:14px/1.5 system-ui,-apple-system,sans-serif;color:var(--ink)}
+header{background:#101d37;color:#fff;padding:23px max(24px,calc((100vw - 1100px)/2))}header b{font-size:23px;letter-spacing:-.04em}header span{background:#314262;padding:4px 9px;border-radius:9px;font-size:11px;margin-left:12px}
+main{max-width:1120px;margin:24px auto;padding:0 20px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,.85fr);gap:18px}
+section{background:#fff;border:1px solid var(--line);border-radius:17px;padding:23px}h1{font-size:25px;letter-spacing:-.04em;margin:0 0 9px}h2{font-size:18px;margin:0 0 15px}p{color:#53647d}
+pre{white-space:pre-wrap;word-break:break-word;font:12px/1.55 ui-monospace,monospace;background:#f2f5fa;padding:11px;border-radius:10px}
+textarea{width:100%;resize:vertical;min-height:100px;padding:12px;border:1px solid #b6c9df;border-radius:11px;font:inherit}
+button{border:0;border-radius:10px;background:var(--blue);color:#fff;padding:11px 15px;cursor:pointer;font-weight:800;margin:7px 8px 5px 0}button:disabled{opacity:.5}
+button.other{background:#eaf0fb;color:#254c97}button.danger{background:#7d4a31}
+.lead{padding:13px 0;border-top:1px solid var(--line)}.lead b{display:block}.lead small{color:#67758b}
+.badge{display:inline-block;background:#eaf0fd;color:#2b559b;border-radius:100px;padding:3px 8px;font-size:11px}
+#result{margin-top:15px;white-space:pre-wrap;border-radius:11px;line-height:1.6}
+#trace{max-height:275px;overflow:auto}
+.notice{background:#fff5db;border:1px solid #f4e0aa;padding:12px;border-radius:11px;color:#725419;margin:12px 0}
+.pending{background:#fffaf2;border:1px solid #edc884;border-radius:10px;padding:12px;margin:10px 0}
+.pending b{color:#6e4e1c}footer{text-align:center;font-size:11px;color:#637288;padding:20px}
+@media(max-width:780px){main{grid-template-columns:1fr;margin:12px auto;padding:0 10px}header{padding:18px}section{padding:18px}}
+</style></head><body><header><b>SCOOPOS / LOCAL AI AGENT</b><span>REAL TOOL CALLS · DEMO DATA</span></header>
+<main><section><h1>Give your agent a job</h1><p>This agent uses the OpenAI API to decide which local lead tools to call. It cannot send messages or edit records without your separate approval.</p><div class="notice">This is a <b>local development demonstration</b>, not a production CRM. OpenAI API usage is billed separately. Never paste real customer data into the public GitHub repository.</div>
+<form id="form"><label for="prompt"><b>What should the agent do?</b></label><textarea id="prompt" maxlength="5000">Read the real demo leads, identify which lead most needs a reply, and propose the next action. Do not send a message.</textarea><br><button id="ask" type="submit">Run AI agent →</button></form>
+<h2>Agent answer</h2><div id="result" aria-live="polite">No request yet.</div><details><summary>Actual tool call trace (for teaching)</summary><pre id="trace">No tool calls yet.</pre></details>
+<h2 style="margin-top:26px">Changes awaiting YOUR approval</h2><div id="pending">None</div></section>
+<section><h2>Sandbox lead data</h2><p id="config">Checking local API...</p><div id="leads"></div><button id="refresh" class="other">Refresh records</button></section></main><footer>Localhost only · Sample lead data · Human-approved writes · No Meta, Gmail, Quo, Sweep & Go or LeadBridge connection</footer>
+<script>
+const $=x=>document.getElementById(x);
+const safe=s=>String(s==null?"":s);
+let pending=[];
+async function state(){try{const r=await fetch("/api/state");const d=await r.json();$("config").textContent=d.configured?"Model: "+d.model+" · key configured":"No API key configured. Fill in .env and restart.";pending=d.pending||[];$("leads").replaceChildren();(d.leads||[]).forEach(l=>{let e=document.createElement("div");e.className="lead";let strong=document.createElement("b");strong.textContent=l.id+" · "+l.name;let meta=document.createElement("small");meta.textContent=l.stage+" · consent: "+l.contact_permission+" · follow-up: "+(l.next_follow_up||"none");let note=document.createElement("p");note.textContent=l.notes;e.append(strong,meta,note);$("leads").appendChild(e);});renderPending();}catch(e){$("config").textContent="Cannot access local server: "+e.message;}}
+function renderPending(){$("pending").replaceChildren();if(!pending.length){$("pending").textContent="No pending proposals.";return;}pending.forEach(p=>{let e=document.createElement("div");e.className="pending";let b=document.createElement("b");b.textContent=p.lead_id+" — approval required";let pre=document.createElement("pre");pre.textContent=JSON.stringify({before:p.before,changes:p.changes,reason:p.reason},null,2);let yes=document.createElement("button");yes.textContent="Approve & save";yes.addEventListener("click",()=>review(p.approval_id,true));let no=document.createElement("button");no.textContent="Reject";no.className="danger";no.addEventListener("click",()=>review(p.approval_id,false));e.append(b,pre,yes,no);$("pending").appendChild(e);});}
+async function review(id,approved){if(approved&&!confirm("Apply these exact changes to the LOCAL demo lead record?"))return;const r=await fetch(approved?"/api/approve":"/api/dismiss",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({approval_id:id,confirm:approved})});const d=await r.json();$("result").textContent=(approved?"Approval: ":"Rejection: ")+JSON.stringify(d);await state();}
+$("form").addEventListener("submit",async e=>{e.preventDefault();$("ask").disabled=true;$("result").textContent="Asking the model and running local tools...";try{const r=await fetch("/api/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({message:$("prompt").value})});const d=await r.json();if(!r.ok)throw Error(d.error||"Unknown error");$("result").textContent=safe(d.answer);$("trace").textContent=JSON.stringify(d.trace||[],null,2);await state();}catch(error){$("result").textContent="Error: "+error.message;}finally{$("ask").disabled=false;}});
+$("refresh").addEventListener("click",state);state();
+</script></body></html>

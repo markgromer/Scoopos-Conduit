@@ -1,0 +1,67 @@
+[
+  {
+    "id": "L-001",
+    "name": "Jamie Sample",
+    "email": "jamie@example.com",
+    "service": "Weekly cleanup",
+    "dogs": 2,
+    "zip": "85748",
+    "stage": "New",
+    "contact_permission": "Yes",
+    "last_contact": "",
+    "next_follow_up": "2026-10-12",
+    "notes": "New weekend inquiry. Owner has not replied. Verify actual route coverage before quoting."
+  },
+  {
+    "id": "L-002",
+    "name": "Alex Example",
+    "email": "alex@example.com",
+    "service": "Twice-weekly cleanup",
+    "dogs": 1,
+    "zip": "85747",
+    "stage": "Quote Sent",
+    "contact_permission": "Yes",
+    "last_contact": "2026-10-05",
+    "next_follow_up": "2026-10-12",
+    "notes": "Demo quote was already sent. Customer has not replied."
+  },
+  {
+    "id": "L-003",
+    "name": "Sam Fiction",
+    "email": "sam@example.com",
+    "service": "One-time cleanup",
+    "dogs": 3,
+    "zip": "85706",
+    "stage": "Needs Reply",
+    "contact_permission": "Unknown",
+    "last_contact": "",
+    "next_follow_up": "2026-10-12",
+    "notes": "Consent to proactive outreach is unverified. Owner must review."
+  },
+  {
+    "id": "L-004",
+    "name": "Taylor Demo",
+    "email": "taylor@example.com",
+    "service": "Weekly cleanup",
+    "dogs": 2,
+    "zip": "85745",
+    "stage": "Paused",
+    "contact_permission": "No",
+    "last_contact": "2026-10-10",
+    "next_follow_up": "",
+    "notes": "Asked business to stop contacting them."
+  },
+  {
+    "id": "L-005",
+    "name": "Casey Practice",
+    "email": "casey@example.com",
+    "service": "Weekly cleanup",
+    "dogs": 1,
+    "zip": "85730",
+    "stage": "Won",
+    "contact_permission": "Yes",
+    "last_contact": "2026-10-09",
+    "next_follow_up": "",
+    "notes": "Demo customer already booked; no sales follow-up necessary."
+  }
+]
