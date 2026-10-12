@@ -1,5 +1,8 @@
 # ScoopOS Bow Wow — Build Your First Real AI Agent
 
+**NEW: 26:35 interactive live lesson** — [Open the full-screen deck](https://scoopos-bowwow-masterclass.markgromer.workers.dev/) · [Presenter notes](https://scoopos-bowwow-masterclass.markgromer.workers.dev/?presenter=1) · [Member handout](https://scoopos-bowwow-masterclass.markgromer.workers.dev/?handout=1) · [Host run-of-show](presentation/HOST-RUN-OF-SHOW.md)
+
+
 **Monday, October 12, 2026 · 4 PM Arizona**
 
 **Start here (public interactive builder):** https://scoopos-agent-lab.markgromer.workers.dev/
