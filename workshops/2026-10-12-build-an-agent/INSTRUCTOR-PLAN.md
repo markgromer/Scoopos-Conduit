@@ -23,7 +23,7 @@ Have members choose the correct runtime path:
 - Business/Enterprise/Edu authorized users: Workspace Agent configuration.
 - Developer optional: self-hosted API runtime with function-calling and local approval UI.
 
-Show a copy/paste into Project settings; then open Work (if eligible) and verify one read from a connected system. Don't spend the class debugging everyone's OAuth.
+Use the exact [Live Demo guide](LIVE-DEMO.md): the instructor's demo base was seeded with five fictional customers, and Airtable connector read and approved-write operations were verified independently. Show copy/paste into Project settings; then open Work (if eligible) and test a live read of that same source. The Work agent itself still needs this rehearsal. Don't spend the class debugging everyone's OAuth.
 
 ### 45–55 min: Three tests, no excuses
 1. Read ONE actual record with source evidence. No connection? Agent must clearly say so.
