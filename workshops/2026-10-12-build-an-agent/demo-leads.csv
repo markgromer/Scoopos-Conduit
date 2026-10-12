@@ -1,0 +1,6 @@
+Lead ID,Customer,Service,Dogs,ZIP,Stage,Consent,Date Received,Last Contact,Follow Up,Next Action,Notes,Owner
+L-001,Jamie Sample,Weekly cleanup,2,85748,New,Yes,2026-10-10,,2026-10-12,Verify service ZIP and prepare accurate quote reply; owner approval before sending,New weekend inquiry. No response recorded. Route coverage and price NOT verified.,Owner
+L-002,Alex Example,Twice-weekly cleanup,1,85747,Quote Sent,Yes,2026-10-01,2026-10-05,2026-10-12,Check reply history; prepare respectful follow-up for review,Quote sent last week. No response since.,Owner
+L-003,Sam Fiction,One-time cleanup,3,85706,Needs Reply,Unknown,2026-10-11,,2026-10-12,Verify whether customer consented before contact,Interest expressed in social media. Permission to contact NOT confirmed.,Owner
+L-004,Taylor Demo,Weekly cleanup,2,85745,Paused,No,2026-10-02,2026-10-10,,Do not contact. Respect stop request.,Requested NO follow-ups. Opted out.,Owner
+L-005,Casey Practice,Weekly cleanup,1,85730,Won,Yes,2026-10-03,2026-10-09,,None. Already booked in demo.,Booked; no sales follow-up necessary.,Owner
