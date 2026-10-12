@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED: This initial exercise was too shallow and does not build an agent.** Use the replacement [Build Your First AI Employee workshop](../2026-10-12-build-an-agent/README.md) and the [live ScoopOS Agent Lab](https://scoopos-agent-lab.markgromer.workers.dev/). This folder is retained as an archive only.
+
 # Bow Wow Workshop: Build Your First AI Business Assistant
 **ScoopOS / Poop Scoop Syndicate | October 12, 2026 | 4:00 PM Arizona time**
 
