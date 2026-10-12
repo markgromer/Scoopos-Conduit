@@ -1,5 +1,10 @@
 # ScoopOS Bow Wow — Build Your First Real AI Agent
 
+**TODAY'S SINGLE HOST LAUNCHPAD:** https://scoopos-bowwow-host.markgromer.workers.dev/ · [60-minute host checklist](HOST-RUN-OF-SHOW.md) · [one-page member quick start](MEMBER-QUICK-START.md)
+
+**Updated Agent Lab:** https://scoopos-agent-lab.markgromer.workers.dev/ now supports portable agent JSON save/reopen, a direct fictional-CSV beginner route, honest self-reported tests and disabled unsupported tools. This is a reusable blueprint builder, not an actual backend agent runtime or app connector.
+
+
 **NEW: 26:35 interactive live lesson** — [Audience slides only (share this in Zoom)](https://scoopos-bowwow-masterclass.markgromer.workers.dev/?audience=1) · [Private presenter notes](https://scoopos-bowwow-masterclass.markgromer.workers.dev/?presenter=1) · [Member handout](https://scoopos-bowwow-masterclass.markgromer.workers.dev/?handout=1) · [Host run-of-show](presentation/HOST-RUN-OF-SHOW.md)
 
 
