@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - "workshops/2026-10-12-build-an-agent/agent-starter/**"
+      - "workshops/2026-10-12-build-an-agent/builder/**"
       - ".github/workflows/bow-wow-agent-tests.yml"
   workflow_dispatch:
 jobs:
@@ -18,3 +19,5 @@ jobs:
           node-version: "22"
       - name: Test agent engine and human-approval protections
         run: npm test
+      - name: Test blueprint backup import and export
+        run: node --test ../builder/tests/blueprint-backup.test.mjs

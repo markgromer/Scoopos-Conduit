@@ -188,27 +188,35 @@ function renderBlueprint(){$("blueprint").textContent=agentInstructions();}
 function stepsForMode(){if(st.mode==="project")return {title:"Install in a ChatGPT Project",desc:"Available broadly across signed-in ChatGPT accounts. The project makes your instructions reusable, but it doesn't become an autonomous worker by itself.",steps:["Open ChatGPT and create a New project in the sidebar.","Name it "+(st.name||"My Business Agent")+".","Open the project's ⋯ menu → Project settings → paste your copied agent instructions.","Add relevant business policies as PRIVATE project source files, and start a conversation inside the project.","Test one real task. Without an eligible connected app, supply a private sample CSV and make changes manually."]};if(st.mode==="work")return {title:"Run it with ChatGPT Work + connected apps",desc:"For eligible Work plans. Work can perform multi-step tasks through your approved plugins. Connection and actions depend on your plan and permissions.",steps:["Set up the Project instructions first, or begin a new Work task with the full instructions.","In Settings → Plugins, connect an available app for "+(st.source||"your selected source")+". Verify the account and allowed data.","Open Work, ask it to use the connected app to read one real record, and require a source link or ID.","Use the first live test. If a tool is unavailable or fails, stop and fix it before adding another.","Only after successful tests, consider a scheduled task or supported app trigger. Scheduling is a separate configuration."]};if(st.mode==="workspace")return {title:"Create a Workspace Agent (Business / Enterprise / Edu)",desc:"Workspace agent creation is permission-controlled and may not be present in a personal account.",steps:["Open the Agents area in your eligible ChatGPT workspace.","Create a new agent and give it "+(st.name||"your agent name")+".","Paste the full instructions and attach approved knowledge files.","Grant only the required app scopes for "+(st.source||"your chosen source")+". Set write approvals and inspect permission settings.","Test it in preview using a real read-only source and blocked-action tests, then publish only when authorized."]};return {title:"Run your own API agent (developer path)",desc:"This is a real code-running agent with model tool calls. Requires Node.js, a separate OpenAI API key and usage billing. It starts locally with sample leads; it does not automatically connect your CRM.",steps:["Open the GitHub workshop folder and its agent-starter/README.md.","Install Node.js 20+, copy .env.example to .env, and supply your own OpenAI API key locally. NEVER paste the key here.","Run npm start from agent-starter to launch the local server and UI.","Ask it to list leads, read L-001, and propose an update. Inspect the tool-call trace.","Approve an update in the local UI and verify the JSON record changed. Add real integrations only in a later, reviewed step."]};}
 function renderMode(){let m=stepsForMode();$("modeTitle").textContent=m.title;$("modeDesc").textContent=m.desc;$("modeSteps").replaceChildren();m.steps.forEach(s=>{let li=document.createElement("li");li.textContent=s;$("modeSteps").appendChild(li);});}
 function feedback(id,msg,kind){let e=$(id);e.textContent=msg;e.className="feedback show "+(kind||"");}
+const BLUEPRINT_MAX_BYTES=65536;
 function exportBlueprint(){
  collect();const saveState={...st,checks:[false,false,false],testEvidence:"",step:1};
- download("ScoopOS-"+String(st.name||"my-agent").replace(/[^a-z0-9-_]/gi,"-").slice(0,45)+"-blueprint.json",
- JSON.stringify({app:"scoopos-agent-lab",schema:1,exported_at:new Date().toISOString(),state:saveState},null,2),"application/json;charset=utf-8");
+ const content=JSON.stringify({app:"scoopos-agent-lab",schema:1,exported_at:new Date().toISOString(),state:saveState},null,2);
+ if(new Blob([content]).size>BLUEPRINT_MAX_BYTES){feedback("copyFeedback","This blueprint exceeds the 64 KB backup limit. Shorten the reference text and try again. Your current agent is unchanged; no incomplete backup was downloaded.");return;}
+ download("ScoopOS-"+String(st.name||"my-agent").replace(/[^a-z0-9-_]/gi,"-").slice(0,45)+"-blueprint.json",content,"application/json;charset=utf-8");
 }
 async function importBlueprint(file){
- if(!file||file.size>65536){feedback("copyFeedback","Choose a valid agent blueprint JSON smaller than 64 KB.");return;}
+ if(!file)return;
+ if(file.size>BLUEPRINT_MAX_BYTES){feedback("copyFeedback","This file exceeds the 64 KB backup limit. Your current agent is unchanged.");return;}
+ let previousState=null;
  try{
   const data=JSON.parse(await file.text());
-  if(data.app!=="scoopos-agent-lab"||data.schema!==1||!data.state||!defaults[data.state.mission])throw Error("invalid format");
+  if(!data||data.app!=="scoopos-agent-lab"||data.schema!==1||!data.state||typeof data.state!=="object"||Array.isArray(data.state)||typeof data.state.mission!=="string"||!Object.hasOwn(defaults,data.state.mission))throw Error("invalid format");
   const props=["mission","name","business","services","area","policies","knowledge","trigger","workflow","done","source","escalation","mode"];
   const imported={};
-  props.forEach(k=>{if(typeof data.state[k]==="string")imported[k]=data.state[k].slice(0,2500);});
+  props.forEach(k=>{if(typeof data.state[k]==="string")imported[k]=data.state[k];});
   imported.tools=Array.isArray(data.state.tools)?data.state.tools.filter(x=>toolList.includes(x)):[];
   if(!imported.tools.length)imported.tools=["Airtable"];
   imported.source=imported.tools.includes(imported.source)?imported.source:imported.tools[0];
   imported.mode=["project","work","workspace","code"].includes(imported.mode)?imported.mode:"project";
-  Object.assign(st,imported,{checks:[false,false,false],testEvidence:"",step:1});
+  previousState=st;
+  st=Object.assign({},st,imported,{checks:[false,false,false],testEvidence:"",step:1});
   document.querySelectorAll("[data-mission]").forEach(el=>el.classList.toggle("selected",el.dataset.mission===st.mission));
   render();show(1);feedback("stage1feedback","Existing agent restored. Review its facts, then keep building and test the current version.","ok");save();
- }catch(e){feedback("copyFeedback","Couldn't import this file. Use a ScoopOS Agent Lab blueprint JSON exported from this workshop.");}
+ }catch(e){
+  if(previousState){st=previousState;try{document.querySelectorAll("[data-mission]").forEach(el=>el.classList.toggle("selected",el.dataset.mission===st.mission));render();show(st.step);}catch(_){}save();}
+  feedback("copyFeedback","Couldn't import this file. Your current agent is unchanged. Use a ScoopOS Agent Lab blueprint JSON exported from this workshop.");
+ }
 }
 function download(name,content,mime){let blob=new Blob([content],{type:mime||"text/markdown;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
 function copy(text){if(navigator.clipboard&&navigator.clipboard.writeText){return navigator.clipboard.writeText(text).catch(()=>copyFallback(text));}return copyFallback(text);}
