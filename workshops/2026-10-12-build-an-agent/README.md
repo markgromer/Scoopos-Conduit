@@ -24,6 +24,7 @@ A member:
 ## Read in order
 - [60-minute instructor plan](INSTRUCTOR-PLAN.md)
 - [Student installation guide](STUDENT-SETUP.md)
+- [Verified real Airtable demo](LIVE-DEMO.md) and [fictional student CSV](demo-leads.csv)
 - [Live verification rubric](ACCEPTANCE-TESTS.md)
 - [Standalone API agent runtime](agent-starter/README.md)
 
